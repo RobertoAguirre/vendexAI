@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Vendex AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .section {
+            background: white;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        .customer-list {
+            list-style: none;
+        }
+
+        .customer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .customer-item:last-child {
+            border-bottom: none;
+        }
+
+        .customer-info {
+            flex: 1;
+        }
+
+        .customer-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .customer-details {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .probability-bar {
+            width: 100px;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-left: 15px;
+        }
+
+        .probability-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
+            transition: width 0.3s ease;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .refresh-btn:hover {
+            background: #5a67d8;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .nav {
+            background: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .nav a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+
+        .nav a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Dashboard - Vendex AI</h1>
+        <p>Métricas en tiempo real del asistente de ventas</p>
+    </div>
+
+    <div class="nav">
+        <a href="/">🏠 Chat</a>
+        <a href="/dashboard.html">📊 Dashboard</a>
+        <a href="#" onclick="refreshData()">🔄 Actualizar</a>
+    </div>
+
+    <div class="container">
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalConversations">-</div>
+                <div class="stat-label">Conversaciones Hoy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgLeadScore">-</div>
+                <div class="stat-label">Lead Score Promedio</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeConversations">-</div>
+                <div class="stat-label">Conversaciones Activas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingFollowUps">-</div>
+                <div class="stat-label">Seguimientos Pendientes</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                🎯 Top Prospects (Alta Probabilidad de Conversión)
+            </div>
+            <div class="section-content">
+                <ul class="customer-list" id="topProspects">
+                    <li class="loading">Cargando datos...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                🚨 Alertas
+            </div>
+            <div class="section-content" id="alerts">
+                <div class="loading">Cargando alertas...</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                📈 Actividad Reciente
+            </div>
+            <div class="section-content" id="recentActivity">
+                <div class="loading">Cargando actividad...</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="refreshData()">
+        🔄 Actualizar
+    </button>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        async function loadDashboard() {
+            try {
+                // Simular token de admin para demo
+                const token = await getAdminToken();
+                
+                const response = await fetch(`${API_BASE}/api/analytics/dashboard`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStats(data.data.summary);
+                    updateTopProspects(data.data.topProspects);
+                    updateAlerts(data.data.alerts);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showError('Error cargando dashboard: ' + error.message);
+            }
+        }
+
+        async function getAdminToken() {
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@vendex.com',
+                        password: 'password'
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    return data.data.token;
+                } else {
+                    throw new Error('No se pudo obtener token de admin');
+                }
+            } catch (error) {
+                console.error('Error getting admin token:', error);
+                return 'demo_token'; // Fallback para demo
+            }
+        }
+
+        function updateStats(summary) {
+            document.getElementById('totalConversations').textContent = summary.todayConversations || 0;
+            document.getElementById('avgLeadScore').textContent = summary.avgLeadScore || 0;
+            document.getElementById('activeConversations').textContent = summary.activeConversations || 0;
+            document.getElementById('pendingFollowUps').textContent = summary.pendingFollowUps || 0;
+        }
+
+        function updateTopProspects(prospects) {
+            const container = document.getElementById('topProspects');
+            
+            if (!prospects || prospects.length === 0) {
+                container.innerHTML = '<li style="text-align: center; color: #666; padding: 20px;">No hay prospects de alto valor en este momento</li>';
+                return;
+            }
+
+            container.innerHTML = prospects.map(prospect => `
+                <li class="customer-item">
+                    <div class="customer-info">
+                        <div class="customer-name">${prospect.name || prospect.customerId}</div>
+                        <div class="customer-details">
+                            ID: ${prospect.customerId} | 
+                            Tipo: ${prospect.profile?.customerType || 'N/A'}
+                        </div>
+                    </div>
+                    <div class="probability-bar">
+                        <div class="probability-fill" style="width: ${(prospect.behavior?.conversionProbability || 0) * 100}%"></div>
+                    </div>
+                    <div style="margin-left: 10px; font-weight: bold; color: #667eea;">
+                        ${Math.round((prospect.behavior?.conversionProbability || 0) * 100)}%
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function updateAlerts(alerts) {
+            const container = document.getElementById('alerts');
+            
+            if (!alerts || alerts.total === 0) {
+                container.innerHTML = '<div style="color: #28a745; text-align: center;">✅ No hay alertas pendientes</div>';
+                return;
+            }
+
+            let alertsHTML = '';
+            
+            if (alerts.overdueFollowUps > 0) {
+                alertsHTML += `<div style="color: #dc3545; margin-bottom: 10px;">⚠️ ${alerts.overdueFollowUps} seguimientos vencidos</div>`;
+            }
+            
+            if (alerts.inactiveVipCustomers > 0) {
+                alertsHTML += `<div style="color: #ffc107; margin-bottom: 10px;">👑 ${alerts.inactiveVipCustomers} clientes VIP inactivos</div>`;
+            }
+
+            container.innerHTML = alertsHTML || '<div style="color: #28a745;">✅ No hay alertas</div>';
+        }
+
+        function showError(message) {
+            const container = document.querySelector('.container');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            container.insertBefore(errorDiv, container.firstChild);
+        }
+
+        async function refreshData() {
+            const button = document.querySelector('.refresh-btn');
+            const originalText = button.textContent;
+            button.textContent = '🔄 Actualizando...';
+            button.disabled = true;
+
+            await loadDashboard();
+
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 1000);
+        }
+
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+
+        // Auto-refresh cada 30 segundos
+        setInterval(loadDashboard, 30000);
+    </script>
+</body>
+</html>

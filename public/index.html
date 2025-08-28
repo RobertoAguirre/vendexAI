@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendex AI - Asistente de Ventas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #007bff;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .message-info {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .message.assistant .message-info {
+            text-align: left;
+        }
+
+        .metrics {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #1976d2;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+        }
+
+        #customerIdInput {
+            width: 150px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+        }
+
+        #messageInput:focus, #customerIdInput:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        #sendButton {
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        #sendButton:hover {
+            background: #0056b3;
+        }
+
+        #sendButton:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .typing {
+            display: none;
+            padding: 10px 16px;
+            color: #666;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        .examples {
+            padding: 15px 20px;
+            background: #fff3cd;
+            border-top: 1px solid #ffeaa7;
+            font-size: 13px;
+        }
+
+        .examples h4 {
+            margin-bottom: 8px;
+            color: #856404;
+        }
+
+        .example-btn {
+            display: inline-block;
+            margin: 2px 5px 2px 0;
+            padding: 4px 8px;
+            background: #fff;
+            border: 1px solid #ffeaa7;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #856404;
+            transition: all 0.2s;
+        }
+
+        .example-btn:hover {
+            background: #ffeaa7;
+        }
+
+        .status {
+            padding: 10px 20px;
+            background: #d4edda;
+            color: #155724;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 600px) {
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            #customerIdInput {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🤖 Vendex AI</h1>
+            <p>Asistente de Ventas Inteligente</p>
+        </div>
+
+        <div class="status" id="status">
+            ✅ Conectado - Listo para ayudarte
+        </div>
+
+        <div class="examples">
+            <h4>💡 Ejemplos para probar:</h4>
+            <span class="example-btn" onclick="setExample('Hola, estoy buscando una laptop para trabajo')">Buscar laptop</span>
+            <span class="example-btn" onclick="setExample('¿Cuál es el precio de la Laptop Pro 15?')">Preguntar precio</span>
+            <span class="example-btn" onclick="setExample('Me parece muy cara, ¿hay descuentos?')">Objeción precio</span>
+            <span class="example-btn" onclick="setExample('Necesito especificaciones técnicas detalladas')">Info técnica</span>
+            <span class="example-btn" onclick="setExample('¿Qué garantía incluye?')">Garantía</span>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message assistant">
+                <div class="message-content">
+                    ¡Hola! Soy Alex, tu asistente de ventas personal. Estoy aquí para ayudarte a encontrar exactamente lo que necesitas. ¿En qué puedo ayudarte hoy? 😊
+                </div>
+            </div>
+        </div>
+
+        <div class="typing" id="typing">
+            El asistente está escribiendo...
+        </div>
+
+        <div class="chat-input">
+            <div class="input-group">
+                <input type="text" id="customerIdInput" placeholder="Tu ID (ej: cliente_001)" value="cliente_demo">
+                <textarea id="messageInput" placeholder="Escribe tu mensaje aquí..." rows="1"></textarea>
+                <button id="sendButton" onclick="sendMessage()">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let conversationId = null;
+
+        function setExample(text) {
+            document.getElementById('messageInput').value = text;
+            document.getElementById('messageInput').focus();
+        }
+
+        function addMessage(content, isUser = false, metadata = null) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            
+            let messageHTML = `<div class="message-content">${content}</div>`;
+            
+            if (metadata && !isUser) {
+                const leadScore = metadata.leadScore || 0;
+                const probability = Math.round((metadata.conversionProbability || 0) * 100);
+                const sentiment = metadata.customerSentiment || metadata.sentiment || 'neutral';
+                
+                messageHTML += `
+                    <div class="metrics">
+                        📊 Lead Score: ${leadScore}/100 | 
+                        🎯 Conversión: ${probability}% | 
+                        😊 Sentimiento: ${sentiment}
+                    </div>
+                `;
+            }
+            
+            messageDiv.innerHTML = messageHTML;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showTyping() {
+            const typing = document.getElementById('typing');
+            if (typing) typing.style.display = 'block';
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typing');
+            if (typing) typing.style.display = 'none';
+        }
+
+        function setStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            if (status) {
+                status.textContent = message;
+                status.className = isError ? 'status error' : 'status';
+            }
+        }
+
+        async function sendMessage() {
+            try {
+                const messageInput = document.getElementById('messageInput');
+                const customerIdInput = document.getElementById('customerIdInput');
+                const sendButton = document.getElementById('sendButton');
+                
+                const message = messageInput.value.trim();
+                const customerId = customerIdInput.value.trim() || 'cliente_demo';
+                
+                if (!message) return;
+
+                // Disable input
+                sendButton.disabled = true;
+                messageInput.disabled = true;
+                
+                // Add user message
+                addMessage(message, true);
+                messageInput.value = '';
+                
+                // Show typing indicator
+                showTyping();
+                setStatus('🤖 El asistente está pensando...');
+
+                const response = await fetch(`${API_BASE}/api/chat/message`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        customerId: customerId,
+                        message: message,
+                        channel: 'web'
+                    })
+                });
+
+                const data = await response.json();
+                
+                hideTyping();
+                
+                if (data.success) {
+                    conversationId = data.data.conversationId;
+                    addMessage(data.data.message, false, data.data.metadata);
+                    setStatus('✅ Mensaje enviado correctamente');
+                } else {
+                    addMessage(`❌ Error: ${data.error}`, false);
+                    setStatus('❌ Error al enviar mensaje', true);
+                }
+            } catch (error) {
+                hideTyping();
+                addMessage(`❌ Error de conexión: ${error.message}`, false);
+                setStatus('❌ Error de conexión con el servidor', true);
+                console.error('Error:', error);
+            } finally {
+                // Re-enable input
+                const sendButton = document.getElementById('sendButton');
+                const messageInput = document.getElementById('messageInput');
+                if (sendButton) sendButton.disabled = false;
+                if (messageInput) {
+                    messageInput.disabled = false;
+                    messageInput.focus();
+                }
+            }
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            console.log('Page loaded, initializing...');
+            
+            // Auto-resize textarea
+            const messageInput = document.getElementById('messageInput');
+            if (messageInput) {
+                messageInput.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+                });
+
+                // Send message on Enter
+                messageInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+                
+                messageInput.focus();
+            }
+            
+            setStatus('✅ Listo para chatear');
+            
+            // Test connection
+            fetch(`${API_BASE}/health`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'OK') {
+                        setStatus('✅ Conectado al servidor');
+                    } else {
+                        setStatus('⚠️ Servidor responde pero hay problemas', true);
+                    }
+                })
+                .catch(error => {
+                    setStatus('❌ No se puede conectar al servidor', true);
+                    console.error('Connection test failed:', error);
+                });
+        });
+    </script>
+</body>
+</html>

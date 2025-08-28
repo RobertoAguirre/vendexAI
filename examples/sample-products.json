@@ -1,0 +1,259 @@
+[
+  {
+    "productId": "laptop-pro-15",
+    "name": "Laptop Pro 15\"",
+    "description": "Laptop profesional de alto rendimiento con procesador Intel i7, 16GB RAM y SSD de 512GB. Ideal para trabajo profesional y creativo.",
+    "aiOptimizedDescription": "Esta laptop es perfecta para profesionales que necesitan potencia y portabilidad. Con su procesador Intel i7 de última generación, podrás ejecutar múltiples aplicaciones sin problemas. Los 16GB de RAM aseguran un rendimiento fluido, mientras que el SSD de 512GB ofrece velocidad de arranque y carga de archivos excepcional. Su pantalla de 15 pulgadas con resolución Full HD es ideal para diseño, programación o presentaciones. La batería de larga duración te permite trabajar todo el día sin preocupaciones.",
+    "category": "Tecnología",
+    "subcategory": "Laptops",
+    "pricing": {
+      "basePrice": 1299.99,
+      "currency": "USD",
+      "compareAtPrice": 1499.99,
+      "discounts": [
+        {
+          "type": "percentage",
+          "value": 10,
+          "validUntil": "2024-12-31T23:59:59.000Z",
+          "conditions": "Oferta de lanzamiento"
+        }
+      ]
+    },
+    "features": [
+      {
+        "name": "Procesador Intel i7",
+        "description": "Procesador de 11va generación",
+        "benefit": "Rendimiento superior para multitarea y aplicaciones exigentes",
+        "priority": "high"
+      },
+      {
+        "name": "16GB RAM DDR4",
+        "description": "Memoria de alta velocidad",
+        "benefit": "Ejecuta múltiples aplicaciones sin ralentización",
+        "priority": "high"
+      },
+      {
+        "name": "SSD 512GB",
+        "description": "Almacenamiento de estado sólido",
+        "benefit": "Arranque rápido y acceso instantáneo a archivos",
+        "priority": "high"
+      },
+      {
+        "name": "Pantalla Full HD",
+        "description": "Resolución 1920x1080",
+        "benefit": "Imágenes nítidas y colores vibrantes",
+        "priority": "medium"
+      }
+    ],
+    "specifications": {
+      "technical": {
+        "processor": "Intel Core i7-1165G7",
+        "ram": "16GB DDR4",
+        "storage": "512GB NVMe SSD",
+        "graphics": "Intel Iris Xe Graphics",
+        "display": "15.6\" Full HD IPS",
+        "battery": "65Wh Li-ion",
+        "os": "Windows 11 Pro"
+      },
+      "dimensions": {
+        "length": 35.7,
+        "width": 23.5,
+        "height": 1.8,
+        "weight": 1.7,
+        "unit": "cm/kg"
+      }
+    },
+    "inventory": {
+      "available": true,
+      "stock": 25,
+      "lowStockThreshold": 5
+    },
+    "salesData": {
+      "totalSold": 150,
+      "revenue": 194998.5,
+      "averageRating": 4.7,
+      "reviewCount": 89,
+      "conversionRate": 0.23
+    },
+    "aiInsights": {
+      "commonObjections": [
+        {
+          "objection": "es muy caro",
+          "response": "Entiendo tu preocupación por el precio. Sin embargo, considera que esta laptop te durará años y su rendimiento superior te ahorrará tiempo valioso en tu trabajo diario. Además, tenemos opciones de financiamiento sin intereses.",
+          "effectiveness": 0.75
+        },
+        {
+          "objection": "no necesito tanta potencia",
+          "response": "Es mejor tener más potencia de la que necesitas ahora, que quedarte corto en el futuro. Esta laptop crecerá contigo y tus necesidades profesionales, manteniéndose relevante por más tiempo.",
+          "effectiveness": 0.68
+        }
+      ],
+      "bestSellingPoints": [
+        "Rendimiento excepcional para profesionales",
+        "Diseño elegante y portátil",
+        "Batería de larga duración",
+        "Pantalla de alta calidad",
+        "Garantía extendida incluida"
+      ],
+      "targetCustomerProfile": {
+        "demographics": ["profesionales", "freelancers", "estudiantes universitarios"],
+        "painPoints": ["laptop lenta", "poca memoria", "batería que no dura"],
+        "motivations": ["productividad", "calidad", "durabilidad"]
+      },
+      "competitiveAdvantages": [
+        "Mejor relación precio-rendimiento del mercado",
+        "Soporte técnico 24/7",
+        "Garantía de 3 años",
+        "Actualizaciones gratuitas de software"
+      ],
+      "upsellOpportunities": ["laptop-pro-17", "workstation-ultra"],
+      "crossSellOpportunities": ["mouse-wireless-pro", "laptop-bag-premium", "monitor-4k-27"]
+    },
+    "content": {
+      "images": [
+        "/images/laptop-pro-15-front.jpg",
+        "/images/laptop-pro-15-side.jpg",
+        "/images/laptop-pro-15-keyboard.jpg"
+      ],
+      "videos": ["/videos/laptop-pro-15-demo.mp4"],
+      "documents": ["/docs/laptop-pro-15-specs.pdf"],
+      "testimonials": [
+        {
+          "customer": "María González",
+          "content": "Excelente laptop, muy rápida y la batería dura todo el día. Perfecta para mi trabajo como diseñadora.",
+          "rating": 5,
+          "verified": true,
+          "date": "2024-01-15T00:00:00.000Z"
+        }
+      ]
+    },
+    "seo": {
+      "keywords": ["laptop", "profesional", "intel i7", "16gb ram", "ssd"],
+      "tags": ["tecnología", "trabajo", "productividad", "portátil"]
+    },
+    "status": "active"
+  },
+  {
+    "productId": "mouse-wireless-pro",
+    "name": "Mouse Inalámbrico Pro",
+    "description": "Mouse ergonómico inalámbrico con sensor de alta precisión, ideal para trabajo profesional y gaming casual.",
+    "aiOptimizedDescription": "Este mouse inalámbrico combina comodidad y precisión en un diseño elegante. Su sensor óptico de 3200 DPI te ofrece control exacto, mientras que su diseño ergonómico reduce la fatiga durante largas jornadas de trabajo. La batería recargable dura hasta 2 meses con una sola carga, y la conectividad USB-C lo hace compatible con cualquier dispositivo moderno.",
+    "category": "Tecnología",
+    "subcategory": "Accesorios",
+    "pricing": {
+      "basePrice": 49.99,
+      "currency": "USD",
+      "discounts": []
+    },
+    "features": [
+      {
+        "name": "Sensor de alta precisión",
+        "description": "3200 DPI ajustables",
+        "benefit": "Control exacto y suave en cualquier superficie",
+        "priority": "high"
+      },
+      {
+        "name": "Diseño ergonómico",
+        "description": "Forma adaptada a la mano",
+        "benefit": "Comodidad durante largas sesiones de trabajo",
+        "priority": "high"
+      },
+      {
+        "name": "Batería de larga duración",
+        "description": "Hasta 2 meses de uso",
+        "benefit": "Olvídate de cambiar pilas constantemente",
+        "priority": "medium"
+      }
+    ],
+    "inventory": {
+      "available": true,
+      "stock": 100,
+      "lowStockThreshold": 20
+    },
+    "salesData": {
+      "totalSold": 500,
+      "revenue": 24995,
+      "averageRating": 4.5,
+      "reviewCount": 234,
+      "conversionRate": 0.35
+    },
+    "aiInsights": {
+      "bestSellingPoints": [
+        "Excelente relación calidad-precio",
+        "Diseño ergonómico superior",
+        "Batería de larga duración",
+        "Compatible con todos los sistemas"
+      ],
+      "targetCustomerProfile": {
+        "demographics": ["oficinistas", "gamers casuales", "estudiantes"],
+        "painPoints": ["mouse incómodo", "cables molestos", "poca precisión"],
+        "motivations": ["comodidad", "productividad", "precio accesible"]
+      }
+    },
+    "status": "active"
+  },
+  {
+    "productId": "monitor-4k-27",
+    "name": "Monitor 4K 27 pulgadas",
+    "description": "Monitor profesional 4K UHD de 27 pulgadas con tecnología IPS y amplia gama de colores.",
+    "aiOptimizedDescription": "Experimenta la claridad visual definitiva con este monitor 4K de 27 pulgadas. Su panel IPS ofrece colores precisos y ángulos de visión amplios, perfecto para diseño gráfico, edición de video o simplemente disfrutar contenido en ultra alta definición. Con múltiples puertos de conectividad incluyendo USB-C, HDMI y DisplayPort, es compatible con laptops, desktops y dispositivos móviles.",
+    "category": "Tecnología",
+    "subcategory": "Monitores",
+    "pricing": {
+      "basePrice": 399.99,
+      "currency": "USD",
+      "compareAtPrice": 499.99,
+      "discounts": [
+        {
+          "type": "fixed",
+          "value": 50,
+          "validUntil": "2024-11-30T23:59:59.000Z",
+          "conditions": "Oferta Black Friday"
+        }
+      ]
+    },
+    "features": [
+      {
+        "name": "Resolución 4K UHD",
+        "description": "3840 x 2160 píxeles",
+        "benefit": "Imágenes ultra nítidas con detalles increíbles",
+        "priority": "high"
+      },
+      {
+        "name": "Panel IPS",
+        "description": "Tecnología In-Plane Switching",
+        "benefit": "Colores precisos y ángulos de visión amplios",
+        "priority": "high"
+      },
+      {
+        "name": "Múltiples conectores",
+        "description": "USB-C, HDMI, DisplayPort",
+        "benefit": "Compatible con cualquier dispositivo",
+        "priority": "medium"
+      }
+    ],
+    "inventory": {
+      "available": true,
+      "stock": 15,
+      "lowStockThreshold": 5
+    },
+    "salesData": {
+      "totalSold": 75,
+      "revenue": 29999.25,
+      "averageRating": 4.8,
+      "reviewCount": 42,
+      "conversionRate": 0.18
+    },
+    "aiInsights": {
+      "bestSellingPoints": [
+        "Calidad de imagen excepcional",
+        "Perfecto para profesionales creativos",
+        "Conectividad versátil",
+        "Diseño elegante y moderno"
+      ],
+      "upsellOpportunities": ["monitor-4k-32", "monitor-ultrawide"],
+      "crossSellOpportunities": ["laptop-pro-15", "soporte-monitor-ajustable"]
+    },
+    "status": "active"
+  }
+]

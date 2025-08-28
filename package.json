@@ -1,0 +1,52 @@
+{
+  "name": "vendex-ai-sales-assistant",
+  "version": "1.0.0",
+  "description": "Asistente de ventas inteligente con Claude AI",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "seed": "node scripts/seed-database.js",
+    "build": "echo 'Build completed - Node.js app ready'",
+    "postinstall": "echo 'Dependencies installed successfully'",
+    "render-build": "npm install",
+    "lint": "echo 'Linting skipped for now'",
+    "setup": "node scripts/setup-local.js",
+    "check": "node scripts/check-services.js",
+    "local": "npm run check && npm run seed && npm run dev",
+    "test-api": "node scripts/test-api.js",
+    "test-prod": "node scripts/test-api.js https://vendex-ai-backend.onrender.com",
+    "demo": "node scripts/demo-setup.js",
+    "seed-prod": "node scripts/seed-production.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0",
+    "redis": "^4.6.7",
+    "bull": "^4.11.3",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.8.1",
+    "socket.io": "^4.7.2",
+    "dotenv": "^16.3.1",
+    "@anthropic-ai/sdk": "^0.24.3",
+    "joi": "^17.9.2",
+    "winston": "^3.10.0",
+    "moment": "^2.29.4",
+    "node-cron": "^3.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.6.2",
+    "supertest": "^6.3.3",
+    "axios": "^1.6.0"
+  },
+  "keywords": ["ai", "sales", "assistant", "claude", "nodejs"],
+  "author": "Vendex Team",
+  "license": "MIT"
+}
