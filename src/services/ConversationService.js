@@ -20,19 +20,19 @@ class ConversationService {
     logger.info('ConversationService inicializado sin Redis');
   }
 
-  async processMessage(customerId, message, channel = 'web') {
+  async processMessage(businessId, customerId, message, channel = 'web') {
     try {
       // Obtener o crear cliente
       const { Customer } = getModels();
-      let customer = await Customer.findOne({ customerId });
+      let customer = await Customer.findOne({ businessId, customerId });
       if (!customer) {
-        customer = await this.createNewCustomer(customerId, message);
+        customer = await this.createNewCustomer(businessId, customerId, message);
       }
 
       // Obtener o crear conversación activa
-      let conversation = await this.getActiveConversation(customerId);
+      let conversation = await this.getActiveConversation(businessId, customerId);
       if (!conversation) {
-        conversation = await this.createNewConversation(customerId, channel);
+        conversation = await this.createNewConversation(businessId, customerId, channel);
       }
 
       // Analizar sentimiento del mensaje del usuario
@@ -50,7 +50,7 @@ class ConversationService {
       await this.updateConversationContext(conversation, message, sentimentAnalysis);
 
       // Obtener productos relevantes si es necesario
-      const relevantProducts = await this.getRelevantProducts(message, conversation.context);
+      const relevantProducts = await this.getRelevantProducts(businessId, message, conversation.context);
 
       // Preparar contexto para Claude
       const context = {
@@ -67,6 +67,9 @@ class ConversationService {
 
       // Transformar entidades para que coincidan con el esquema
       const transformedMetadata = this.transformMetadata(response.metadata);
+      
+      // Extraer imágenes de productos mencionados en la respuesta
+      const mentionedProductImages = this.extractProductImagesFromResponse(response.content, relevantProducts);
       
       // Agregar respuesta del asistente
       conversation.addMessage('assistant', response.content, transformedMetadata);
@@ -105,6 +108,7 @@ class ConversationService {
           customerSentiment: customer.sentiment.overall,
           followUpNeeded
         },
+        productImages: mentionedProductImages,
         usage: response.usage
       };
 
@@ -114,9 +118,10 @@ class ConversationService {
     }
   }
 
-  async createNewCustomer(customerId, firstMessage) {
+  async createNewCustomer(businessId, customerId, firstMessage) {
     const { Customer } = getModels();
     const customer = new Customer({
+      businessId,
       customerId,
       name: `Cliente ${customerId.slice(-4)}`, // Nombre temporal
       email: `${customerId}@temp.com`, // Email temporal
@@ -134,9 +139,10 @@ class ConversationService {
     return customer;
   }
 
-  async createNewConversation(customerId, channel) {
+  async createNewConversation(businessId, customerId, channel) {
     const { Conversation } = getModels();
     const conversation = new Conversation({
+      businessId,
       conversationId: uuidv4(),
       customerId,
       channel,
@@ -153,12 +159,13 @@ class ConversationService {
     return conversation;
   }
 
-  async getActiveConversation(customerId) {
+  async getActiveConversation(businessId, customerId) {
     // Buscar conversación activa reciente (últimas 24 horas)
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     
     const { Conversation } = getModels();
     return await Conversation.findOne({
+      businessId,
       customerId,
       status: 'active',
       updatedAt: { $gte: oneDayAgo }
@@ -169,7 +176,7 @@ class ConversationService {
     const context = conversation.context;
     
     // Detectar productos mencionados
-    const mentionedProducts = await this.detectMentionedProducts(message);
+    const mentionedProducts = await this.detectMentionedProducts(conversation.businessId, message);
     mentionedProducts.forEach(productId => {
       const existing = context.productsDiscussed.find(p => p.productId === productId);
       if (existing) {
@@ -204,15 +211,16 @@ class ConversationService {
     conversation.markModified('context');
   }
 
-  async getRelevantProducts(message, context) {
+  async getRelevantProducts(businessId, message, context) {
     try {
       // Buscar productos basados en el mensaje
       const { Product } = getModels();
-      const searchResults = await Product.searchProducts(message);
+      const searchResults = await Product.searchProducts(businessId, message);
       
       // Agregar productos ya discutidos en la conversación
       const discussedProductIds = context.productsDiscussed.map(p => p.productId);
       const discussedProducts = await Product.find({
+        businessId,
         productId: { $in: discussedProductIds }
       });
 
@@ -222,7 +230,15 @@ class ConversationService {
         index === self.findIndex(p => p.productId === product.productId)
       );
 
-      return uniqueProducts.slice(0, 5); // Limitar a 5 productos más relevantes
+      // Enriquecer productos con información de imágenes
+      const enrichedProducts = uniqueProducts.map(product => ({
+        ...product.toObject(),
+        hasImages: product.content?.images && product.content.images.length > 0,
+        primaryImage: product.content?.images?.[0] || null,
+        imageCount: product.content?.images?.length || 0
+      }));
+
+      return enrichedProducts.slice(0, 5); // Limitar a 5 productos más relevantes
     } catch (error) {
       logger.error('Error getting relevant products:', error);
       return [];
@@ -268,11 +284,12 @@ class ConversationService {
     return 'casual'; // Por defecto
   }
 
-  async detectMentionedProducts(message) {
+  async detectMentionedProducts(businessId, message) {
     try {
       // Buscar productos que coincidan con palabras en el mensaje
       const { Product } = getModels();
       const products = await Product.find({
+        businessId,
         $text: { $search: message }
       }).limit(5);
       
@@ -476,6 +493,43 @@ class ConversationService {
       throw error;
     }
   }
+
+  extractProductImagesFromResponse(responseContent, products) {
+    try {
+      const mentionedImages = [];
+      
+      logger.info(`Extrayendo imágenes de respuesta. Productos disponibles: ${products.length}`);
+      logger.info(`Contenido de respuesta: ${responseContent.substring(0, 200)}...`);
+      
+      // Buscar productos mencionados en la respuesta
+      products.forEach(product => {
+        logger.info(`Verificando producto: ${product.name}`);
+        if (product.name && responseContent.toLowerCase().includes(product.name.toLowerCase())) {
+          logger.info(`Producto ${product.name} mencionado en respuesta`);
+          if (product.hasImages && product.primaryImage) {
+            logger.info(`Agregando imagen para ${product.name}: ${product.primaryImage}`);
+            mentionedImages.push({
+              productName: product.name,
+              productId: product.productId,
+              imageUrl: product.primaryImage,
+              imageCount: product.imageCount,
+              price: product.pricing.basePrice,
+              currency: product.pricing.currency
+            });
+          } else {
+            logger.info(`Producto ${product.name} no tiene imágenes`);
+          }
+        }
+      });
+
+      logger.info(`Imágenes extraídas: ${mentionedImages.length}`);
+      return mentionedImages;
+    } catch (error) {
+      logger.error('Error extracting product images from response:', error);
+      return [];
+    }
+  }
+
   transformMetadata(metadata) {
     if (!metadata) return metadata;
     

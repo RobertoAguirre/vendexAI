@@ -14,13 +14,16 @@
     "postinstall": "echo 'Dependencies installed successfully'",
     "render-build": "npm install",
     "lint": "echo 'Linting skipped for now'",
-    "setup": "node scripts/setup-local.js",
+    "setup": "node scripts/setup-env.js",
     "check": "node scripts/check-services.js",
-    "local": "npm run check && npm run seed && npm run dev",
+    "local": "npm run dev",
     "test-api": "node scripts/test-api.js",
     "test-prod": "node scripts/test-api.js https://vendex-ai-backend.onrender.com",
     "demo": "node scripts/demo-setup.js",
-    "seed-prod": "node scripts/seed-production.js"
+    "seed-prod": "node scripts/seed-production.js",
+    "import-vendex": "node scripts/import-vendex-products.js",
+    "check-db": "node scripts/check-database.js",
+    "fix-indexes": "node scripts/fix-customer-indexes.js"
   },
   "dependencies": {
     "express": "^4.18.2",

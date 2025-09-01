@@ -34,10 +34,14 @@ const messageSchema = new mongoose.Schema({
 });
 
 const conversationSchema = new mongoose.Schema({
+  businessId: {
+    type: String,
+    required: true,
+    index: true
+  },
   conversationId: {
     type: String,
     required: true,
-    unique: true,
     index: true
   },
   customerId: {
@@ -122,10 +126,11 @@ const conversationSchema = new mongoose.Schema({
 });
 
 // Índices para optimizar consultas
-conversationSchema.index({ customerId: 1, createdAt: -1 });
-conversationSchema.index({ status: 1 });
-conversationSchema.index({ 'context.stage': 1 });
-conversationSchema.index({ 'salesMetrics.leadScore': -1 });
+conversationSchema.index({ businessId: 1, customerId: 1, createdAt: -1 });
+conversationSchema.index({ businessId: 1, status: 1 });
+conversationSchema.index({ businessId: 1, 'context.stage': 1 });
+conversationSchema.index({ businessId: 1, 'salesMetrics.leadScore': -1 });
+conversationSchema.index({ businessId: 1, conversationId: 1 }, { unique: true });
 
 // Métodos del modelo
 conversationSchema.methods.addMessage = function(role, content, metadata = {}) {

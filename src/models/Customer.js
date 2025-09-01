@@ -1,11 +1,14 @@
 const mongoose = require('mongoose');
 
 const customerSchema = new mongoose.Schema({
-  customerId: {
+  businessId: {
     type: String,
     required: true,
-    unique: true,
     index: true
+  },
+  customerId: {
+    type: String,
+    required: true
   },
   name: {
     type: String,
@@ -109,10 +112,12 @@ const customerSchema = new mongoose.Schema({
 });
 
 // Índices para optimizar consultas
-customerSchema.index({ email: 1 });
-customerSchema.index({ 'profile.customerType': 1 });
-customerSchema.index({ 'behavior.lastInteraction': 1 });
-customerSchema.index({ 'behavior.conversionProbability': -1 });
+customerSchema.index({ businessId: 1, email: 1 });
+customerSchema.index({ businessId: 1, 'profile.customerType': 1 });
+customerSchema.index({ businessId: 1, 'behavior.lastInteraction': 1 });
+customerSchema.index({ businessId: 1, 'behavior.conversionProbability': -1 });
+// Índice compuesto único para businessId + customerId
+customerSchema.index({ businessId: 1, customerId: 1 }, { unique: true });
 
 // Métodos del modelo
 customerSchema.methods.updateSentiment = function(sentiment, confidence) {

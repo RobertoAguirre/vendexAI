@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
+  businessId: {
+    type: String,
+    required: true,
+    index: true
+  },
   productId: {
     type: String,
     required: true,
-    unique: true,
     index: true
   },
   name: {
@@ -148,11 +152,12 @@ const productSchema = new mongoose.Schema({
 });
 
 // Índices para optimizar consultas
-productSchema.index({ category: 1, status: 1 });
-productSchema.index({ 'pricing.basePrice': 1 });
-productSchema.index({ 'salesData.conversionRate': -1 });
-productSchema.index({ 'inventory.available': 1 });
-productSchema.index({ name: 'text', description: 'text', aiOptimizedDescription: 'text' });
+productSchema.index({ businessId: 1, category: 1, status: 1 });
+productSchema.index({ businessId: 1, 'pricing.basePrice': 1 });
+productSchema.index({ businessId: 1, 'salesData.conversionRate': -1 });
+productSchema.index({ businessId: 1, 'inventory.available': 1 });
+productSchema.index({ businessId: 1, name: 'text', description: 'text', aiOptimizedDescription: 'text' });
+productSchema.index({ businessId: 1, productId: 1 }, { unique: true });
 
 // Métodos del modelo
 productSchema.methods.calculateDiscountedPrice = function(quantity = 1) {
@@ -234,8 +239,9 @@ productSchema.methods.getObjectionResponse = function(objection) {
 };
 
 // Método estático para buscar productos
-productSchema.statics.searchProducts = function(query, filters = {}) {
+productSchema.statics.searchProducts = function(businessId, query, filters = {}) {
   const searchQuery = {
+    businessId,
     status: 'active',
     'inventory.available': true,
     ...filters

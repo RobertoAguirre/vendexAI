@@ -42,6 +42,9 @@ REGLAS IMPORTANTES:
 4. Mantén un tono conversacional y natural, evita sonar robótico
 5. Adapta tu estilo de comunicación al del cliente (formal/casual/técnico)
 6. Si detectas frustración o molestia, cambia inmediatamente a modo de resolución de problemas
+7. Cuando menciones productos, NUNCA incluyas URLs de imágenes en el texto de la respuesta
+8. Usa las imágenes para hacer los productos más atractivos y reales
+9. Si el cliente pregunta "cómo se ve" o "muéstrame", menciona que puedes ver la imagen pero NO incluyas la URL
 
 DETECCIÓN DE INTENCIONES:
 - Inquiry: Cliente busca información general
@@ -126,6 +129,13 @@ Responde siempre en español y mantén un tono profesional pero cálido.`;
         systemPrompt += `\n  Precio: $${product.pricing.basePrice}`;
         if (product.aiInsights?.bestSellingPoints?.length > 0) {
           systemPrompt += `\n  Puntos clave: ${product.aiInsights.bestSellingPoints.join(', ')}`;
+        }
+        // Agregar información de imágenes si están disponibles (solo para contexto interno)
+        if (product.hasImages && product.primaryImage) {
+          systemPrompt += `\n  Imagen disponible: [IMAGEN_DISPONIBLE]`;
+          if (product.imageCount > 1) {
+            systemPrompt += `\n  Total de imágenes: ${product.imageCount}`;
+          }
         }
       });
     }

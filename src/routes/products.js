@@ -147,6 +147,15 @@ router.post('/sync', auth, validate(bulkSyncSchema), async (req, res) => {
  */
 router.get('/', auth, async (req, res) => {
   try {
+    const { businessId } = req.query;
+    
+    if (!businessId) {
+      return res.status(400).json({
+        success: false,
+        error: 'businessId es requerido'
+      });
+    }
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
@@ -157,7 +166,7 @@ router.get('/', auth, async (req, res) => {
     const sortBy = req.query.sortBy || 'name';
     const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
 
-    let query = { status };
+    let query = { businessId, status };
     
     if (category) {
       query.category = category;
@@ -205,8 +214,16 @@ router.get('/', auth, async (req, res) => {
 router.get('/:productId', auth, async (req, res) => {
   try {
     const { productId } = req.params;
+    const { businessId } = req.query;
     
-    const product = await Product.findOne({ productId });
+    if (!businessId) {
+      return res.status(400).json({
+        success: false,
+        error: 'businessId es requerido'
+      });
+    }
+    
+    const product = await Product.findOne({ businessId, productId });
     
     if (!product) {
       return res.status(404).json({
@@ -237,9 +254,17 @@ router.get('/:productId', auth, async (req, res) => {
 router.put('/:productId', auth, validate(productSchema), async (req, res) => {
   try {
     const { productId } = req.params;
+    const { businessId } = req.query;
     const updateData = req.body;
 
-    const product = await Product.findOne({ productId });
+    if (!businessId) {
+      return res.status(400).json({
+        success: false,
+        error: 'businessId es requerido'
+      });
+    }
+
+    const product = await Product.findOne({ businessId, productId });
     
     if (!product) {
       return res.status(404).json({
@@ -273,7 +298,14 @@ router.put('/:productId', auth, validate(productSchema), async (req, res) => {
 router.post('/:productId/sales', auth, async (req, res) => {
   try {
     const { productId } = req.params;
-    const { quantity, revenue, rating } = req.body;
+    const { businessId, quantity, revenue, rating } = req.body;
+
+    if (!businessId) {
+      return res.status(400).json({
+        success: false,
+        error: 'businessId es requerido'
+      });
+    }
 
     if (!quantity || quantity <= 0) {
       return res.status(400).json({
@@ -289,7 +321,7 @@ router.post('/:productId/sales', auth, async (req, res) => {
       });
     }
 
-    const product = await Product.findOne({ productId });
+    const product = await Product.findOne({ businessId, productId });
     
     if (!product) {
       return res.status(404).json({
@@ -333,7 +365,14 @@ router.post('/:productId/sales', auth, async (req, res) => {
  */
 router.get('/search', async (req, res) => {
   try {
-    const { q, category, minPrice, maxPrice, limit = 10 } = req.query;
+    const { businessId, q, category, minPrice, maxPrice, limit = 10 } = req.query;
+
+    if (!businessId) {
+      return res.status(400).json({
+        success: false,
+        error: 'businessId es requerido'
+      });
+    }
 
     if (!q || q.trim().length === 0) {
       return res.status(400).json({
@@ -354,7 +393,7 @@ router.get('/search', async (req, res) => {
       if (maxPrice) filters['pricing.basePrice'].$lte = parseFloat(maxPrice);
     }
 
-    const products = await Product.searchProducts(q, filters);
+    const products = await Product.searchProducts(businessId, q, filters);
     
     // Calcular precios con descuentos
     const productsWithPricing = products.map(product => {
@@ -402,9 +441,18 @@ router.get('/search', async (req, res) => {
  */
 router.get('/categories', async (req, res) => {
   try {
+    const { businessId } = req.query;
+    
+    if (!businessId) {
+      return res.status(400).json({
+        success: false,
+        error: 'businessId es requerido'
+      });
+    }
+
     const categories = await Product.aggregate([
       {
-        $match: { status: 'active' }
+        $match: { businessId, status: 'active' }
       },
       {
         $group: {
@@ -446,9 +494,17 @@ router.get('/categories', async (req, res) => {
 router.get('/:productId/recommendations', async (req, res) => {
   try {
     const { productId } = req.params;
+    const { businessId } = req.query;
     const limit = parseInt(req.query.limit) || 5;
 
-    const product = await Product.findOne({ productId });
+    if (!businessId) {
+      return res.status(400).json({
+        success: false,
+        error: 'businessId es requerido'
+      });
+    }
+
+    const product = await Product.findOne({ businessId, productId });
     
     if (!product) {
       return res.status(404).json({
@@ -467,6 +523,7 @@ router.get('/:productId/recommendations', async (req, res) => {
 
     if (relatedProductIds.length > 0) {
       recommendations = await Product.find({
+        businessId,
         productId: { $in: relatedProductIds },
         status: 'active',
         'inventory.available': true
@@ -476,6 +533,7 @@ router.get('/:productId/recommendations', async (req, res) => {
     // Si no hay suficientes recomendaciones, buscar por categoría
     if (recommendations.length < limit) {
       const categoryRecommendations = await Product.find({
+        businessId,
         category: product.category,
         productId: { $ne: productId, $nin: relatedProductIds },
         status: 'active',
@@ -514,6 +572,56 @@ router.get('/:productId/recommendations', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Error obteniendo productos recomendados'
+    });
+  }
+});
+
+/**
+ * @route GET /api/products/business/:businessId
+ * @desc Obtener productos de un negocio específico (para el chat)
+ * @access Public
+ */
+router.get('/business/:businessId', async (req, res) => {
+  try {
+    const { businessId } = req.params;
+    const { category, limit = 20 } = req.query;
+
+    let query = { 
+      businessId, 
+      status: 'active', 
+      'inventory.available': true 
+    };
+    
+    if (category) {
+      query.category = category;
+    }
+
+    const products = await Product.find(query)
+      .select('productId name description category pricing inventory content.images')
+      .limit(parseInt(limit))
+      .sort({ 'salesData.conversionRate': -1 });
+
+    const formattedProducts = products.map(product => ({
+      id: product.productId,
+      name: product.name,
+      description: product.description,
+      category: product.category,
+      price: product.pricing.basePrice,
+      currency: product.pricing.currency,
+      stock: product.inventory.stock,
+      images: product.content.images || []
+    }));
+
+    res.json({
+      success: true,
+      data: formattedProducts
+    });
+
+  } catch (error) {
+    logger.error('Error obteniendo productos del negocio:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error obteniendo productos del negocio'
     });
   }
 });

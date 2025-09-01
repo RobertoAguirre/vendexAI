@@ -38,16 +38,20 @@ Un backend completo en Node.js que integra con la API de Claude (Anthropic) para
 
 ### Variables de Entorno
 ```bash
-# 1. Copia el archivo de ejemplo
-cp .env.example .env
+# 1. Crear archivo .env
+touch .env
 
-# 2. Edita .env y completa las variables:
-# - ANTHROPIC_API_KEY (REQUERIDO)
-# - MONGODB_URI 
-# - JWT_SECRET
+# 2. Editar .env y completar las variables:
+MONGODB_URI=mongodb+srv://your_username:your_password@your_cluster.mongodb.net/vendexai?retryWrites=true&w=majority
+ANTHROPIC_API_KEY=your_anthropic_api_key
+PORT=3000
+NODE_ENV=development
 ```
 
-⚠️ **IMPORTANTE**: Nunca subas el archivo `.env` a Git
+⚠️ **IMPORTANTE**: 
+- Nunca subas el archivo `.env` a Git
+- Usa MongoDB Atlas para producción
+- Configura tu URL de MongoDB Atlas en MONGODB_URI
 
 ### Desarrollo Local
 ```bash

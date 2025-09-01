@@ -23,6 +23,7 @@ const followUpService = new FollowUpService();
 
 // Esquemas de validación
 const messageSchema = Joi.object({
+  businessId: Joi.string().required().min(1).max(100),
   customerId: Joi.string().required().min(1).max(100),
   message: Joi.string().required().min(1).max(5000),
   channel: Joi.string().valid('web', 'whatsapp', 'email', 'phone', 'chat').default('web')
@@ -58,11 +59,11 @@ const contextUpdateSchema = Joi.object({
  */
 router.post('/message', validate(messageSchema), async (req, res) => {
   try {
-    const { customerId, message, channel } = req.body;
+    const { businessId, customerId, message, channel } = req.body;
     
-    logger.info(`Mensaje recibido de cliente ${customerId}: ${message.substring(0, 100)}...`);
+    logger.info(`Mensaje recibido de negocio ${businessId}, cliente ${customerId}: ${message.substring(0, 100)}...`);
     
-    const result = await conversationService.processMessage(customerId, message, channel);
+    const result = await conversationService.processMessage(businessId, customerId, message, channel);
     
     // Programar seguimiento si es necesario
     if (result.metadata.followUpNeeded?.needed) {
@@ -93,7 +94,8 @@ router.post('/message', validate(messageSchema), async (req, res) => {
           customerSentiment: result.metadata.customerSentiment,
           intent: result.metadata.intent,
           sentiment: result.metadata.sentiment
-        }
+        },
+        productImages: result.productImages || []
       },
       usage: result.usage
     });
