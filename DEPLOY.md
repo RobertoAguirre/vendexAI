@@ -32,7 +32,6 @@ git push origin main
 | `NODE_ENV` | `production` |
 | `PORT` | `10000` |
 | `MONGODB_URI` | `mongodb+srv://usuario:password@cluster.mongodb.net/vendex-ai?retryWrites=true&w=majority` |
-| `ANTHROPIC_API_KEY` | `sk-ant-api03-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX` |
 | `JWT_SECRET` | `vendex_production_secret_2024_secure_key` |
 | `JWT_EXPIRES_IN` | `7d` |
 | `RATE_LIMIT_WINDOW_MS` | `900000` |
